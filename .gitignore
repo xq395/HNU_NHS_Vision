@@ -1,0 +1,36 @@
+# Build
+build/
+cmake-build-*/
+out/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Model files
+assets/models/*.onnx
+assets/models/*.engine
+assets/models/*.trt
+
+# Calibration data
+calib_images/
+*_calib.yaml
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+.trae/
