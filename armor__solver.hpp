@@ -3,34 +3,7 @@
 #include <opencv2/core/eigen.hpp>
 
 namespace HNU_NHS_Vision::auto_aim{
- struct Armor {
-    public:
-        ArmorNumber number;
-        std::string type;
-        Eigen::Vector3d pos;
-        Eigen::Quaterniond ori;
-        Eigen::Vector3d target_pos;
-        Eigen::Quaterniond target_ori;
-        float distance_to_image_center;
-        float yaw;
-        std::chrono::steady_clock::time_point timestamp;
-        bool is_ok = false;
-        bool is_none_purple = false;
-        int id = -1;
-        std::vector<cv::Point2f> toPtsDebug(
-            const cv::Mat& camera_intrinsic,
-            const cv::Mat& camera_distortion
-        ) const noexcept;
-    };
-    struct Armors {
-    public:
-        std::vector<Armor> armors;
-        std::chrono::steady_clock::time_point timestamp;
-        int id;
-        Eigen::Vector3d v;
-    };
-    
-class Solver
+ class Solver
 {
 public:
   explicit Solver(const std::string & config_path);
@@ -62,5 +35,48 @@ private:
   double SJTU_cost(
     const std::vector<cv::Point2f> & cv_refs, const std::vector<cv::Point2f> & cv_pts,
     const double & inclined) const;
+};
+
+struct Armor
+{
+  Color color;
+  Lightbar left, right;     //used to be const
+  cv::Point2f center;       // 不是对角线交点，不能作为实际中心！
+  cv::Point2f center_norm;  // 归一化坐标
+  std::vector<cv::Point2f> points;
+
+  double ratio;              // 两灯条的中点连线与长灯条的长度之比
+  double side_ratio;         // 长灯条与短灯条的长度之比
+  double rectangular_error;  // 灯条和中点连线所成夹角与π/2的差值
+
+  ArmorType type;
+  ArmorName name;
+  ArmorPriority priority;
+  int class_id;
+  cv::Rect box;
+  cv::Mat pattern;
+  double confidence;
+  bool duplicated;
+
+  Eigen::Vector3d xyz_in_gimbal;  // 单位：m
+  Eigen::Vector3d xyz_in_world;   // 单位：m
+  Eigen::Vector3d ypr_in_gimbal;  // 单位：rad
+  Eigen::Vector3d ypr_in_world;   // 单位：rad
+  Eigen::Vector3d ypd_in_world;   // 球坐标系
+
+  double yaw_raw;  // rad
+
+  Armor(const Lightbar & left, const Lightbar & right);
+  Armor(
+    int class_id, float confidence, const cv::Rect & box, std::vector<cv::Point2f> armor_keypoints);
+  Armor(
+    int class_id, float confidence, const cv::Rect & box, std::vector<cv::Point2f> armor_keypoints,
+    cv::Point2f offset);
+  Armor(
+    int color_id, int num_id, float confidence, const cv::Rect & box,
+    std::vector<cv::Point2f> armor_keypoints);
+  Armor(
+    int color_id, int num_id, float confidence, const cv::Rect & box,
+    std::vector<cv::Point2f> armor_keypoints, cv::Point2f offset);
 };
 }
